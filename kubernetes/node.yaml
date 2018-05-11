@@ -54,7 +54,7 @@ spec:
     spec:
       containers:
       - name: nodered-app
-        image: "tomyogms/node-red-watson-tmf:latest"
+        image: "jdraju/node-red-watson-tmf:latest"
         env:
             - name: FLOWS
               value: "my_flows.json"
