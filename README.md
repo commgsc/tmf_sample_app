@@ -11,13 +11,6 @@ The Application uses the chat bot to query APIs  via IBM Functions within a chat
 
 To see a list of IBM Services, visit here: https://console.bluemix.net/catalog/
 
-<p align="center">
-  <img src="http://g.recordit.co/0o4Owcr9hT.gif" alt="demo" width="270" height="400" />
-</p>
-
-
 ## The Architecture
 ![**Architecture**](readme_images/Arch.png)
-
-## Getting Started
 
