@@ -115,7 +115,7 @@ metadata:
   labels:
     tier: backend
 spec:
-  type: ClusterIP
+  type: NodePort
   selector:
     app: sandbox-nodered
     tier: backend
@@ -211,3 +211,101 @@ spec:
     targetPort: 3128
     protocol: TCP
     name: sandobox-openwhisk-port
+
+---
+
+###  Kafka service requires 3 images
+###  Zookeper Deployment
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: zookeeper-sandbox
+  labels:
+    app: sandbox-nodered
+    tier: backend
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: sandbox-nodered
+        tier: backend
+    spec:
+      containers:
+      - name: zookeeper
+        image: "wurstmeister/zookeeper:latest"
+        imagePullPolicy: IfNotPresent
+        ports:
+        - name: http
+          containerPort: 2181
+---
+
+### Zookeeper Service
+apiVersion: v1
+kind: Service
+metadata:
+  name: zookeper
+  labels:
+    tier: backend
+spec:
+  selector:
+    app: sandbox-nodered
+    tier: backend
+  ports:
+  - port: 2181
+    targetPort: 2181
+    protocol: TCP
+    name: sandbox-zookeeper-port
+---
+
+### Kafka Deployment
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: kafka-sandbox
+  labels:
+    app: sandbox-nodered
+    tier: backend
+spec:
+  replicas: 3
+  template:
+    metadata:
+      labels:
+        app: sandbox-nodered
+        tier: backend
+    spec:
+      containers:
+      - name: kafka
+        image: "wurstmeister/kafka:latest"
+        env:
+            - name: KAFKA_PORT
+              value: "9092"
+            - name: KAFKA_ZOOKEEPER_CONNECT
+              value: "zookeper:2181"
+            - name: KAFKA_ADVERTISED_HOST_NAME
+              value: kafka-cluster
+            - name: KAFKA_CREATE_TOPICS
+              value: mytopic:2:1
+        imagePullPolicy: IfNotPresent
+        ports:
+        - name: http
+          containerPort: 9092
+---
+
+### Kafka Service
+apiVersion: v1
+kind: Service
+metadata:
+  name: kafka-cluster
+  labels:
+    tier: backend
+spec:
+  type: NodePort
+  selector:
+    app: sandbox-nodered
+    tier: backend
+  ports:
+  - port: 9092
+    targetPort: 9092
+    protocol: TCP
+    name: sandbox-kafka-port
